@@ -1,4 +1,5 @@
 Copyright (c) 2019, Mitja Sovec <mitja@sovec.si>
+
 Contributors: Danilo Godec
 
 # check_vmware_running_vms
