@@ -1,7 +1,5 @@
 Copyright (c) 2019, Mitja Sovec <mitja@sovec.si>
-
-Contributor: 
-- Danilo Godec
+Contributors: Danilo Godec
 
 # check_vmware_running_vms
 A Nagios plugin to check number of running VMs on VMWare environment
