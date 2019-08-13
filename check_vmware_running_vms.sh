@@ -2,7 +2,7 @@
 
 #
 # Simple script to count number of running VMs in ESXi environment and compare with what you think should be running
-# count number of running VMs v1.0
+# count number of running VMs v1.1
 #
 
 # Exit codes
@@ -15,16 +15,29 @@ STATE_UNKNOWN=3
 desired_vms=$3
 #echo $desired_vms
 
-running_vms=$(ssh $1@$2 'esxcli vm process list | grep "Process ID" | wc -l')
-#echo $running_vms
+# Create temp file for data storage
+tmp_file=$(mktemp -u)
 
-if [[ $running_vms -lt $desired_vms || $running_vms == 0  ]]; then
-        echo "CRITICAL: Number of running VMs is $running_vms - less than desired |vms=$running_vms"
+# Connect to remote host and save data in tmp_file - temp file for data storage
+ssh $1@$2 'esxcli vm process list' | grep "Display Name:" | sed 's/.*Display Name://g' > ${tmp_file}
+
+# Count number of VMs in tmp_file
+count_vms=$(wc -l ${tmp_file} | awk '{print $1}')
+#echo $count_vms
+
+# Display running VMs in tmp_file
+display_vms=$(cat ${tmp_file} | tr '\n' ' ')
+
+if [[ $count_vms -lt $desired_vms || $count_vms == 0  ]]; then
+        echo "CRITICAL: Number of running VMs is $count_vms - less than desired. Running VMs: $display_vms |vms=$count_vms"
+        rm -f ${tmp_file}
         exit $STATE_CRITICAL
-elif [[ $running_vms -gt $desired_vms ]]; then
-        echo "WARNING: Number of running VMs is $running_vms more than desired |vms=$running_vms"
+elif [[ $count_vms -gt $desired_vms ]]; then
+        echo "WARNING: Number of running VMs is $count_vms more than desired. Running VMs: $display_vms |vms=$count_vms"
+        rm -f ${tmp_file}
         exit $STATE_WARNING
 else
-        echo "INFO: Number of running VMs is $running_vms - exactly as desired |vms=$running_vms"
+        echo "INFO: Number of running VMs is $count_vms - exactly as desired. Running VMs: $display_vms |vms=$count_vms"
+        rm -f ${tmp_file}
         exit $STATE_OK
 fi
