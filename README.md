@@ -1,4 +1,5 @@
 Copyright (c) 2019, Mnheia <mnheia@gmail.com>
+
 Contributors: Danilo Godec
 
 # check_vmware_running_vms
